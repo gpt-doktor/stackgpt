@@ -191,6 +191,12 @@ class GPT(nn.Module):
             loss = None
 
         return logits, loss
+        
+    def add_layer(self, device):
+        #insert a new block at the beggining
+        block = Block(self.config).to(device)
+        self.transformer.h.insert(block, 0)
+        return block #return block to append it's parameters to optimizer.param_groups
 
     def crop_block_size(self, block_size):
         # model surgery to decrease the block size if necessary
