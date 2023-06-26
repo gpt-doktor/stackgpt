@@ -334,7 +334,7 @@ while True:
             raise(Exception("ddp is not supported yet"))
         else:
             new_block = model.add_layer(device)
-            new_paramaters = [param for param in new_block.parameters()]
+            new_parameters = [param for param in new_block.parameters()]
             optimizer.param_groups[0]['params'].extend(new_parameters)
         
         
