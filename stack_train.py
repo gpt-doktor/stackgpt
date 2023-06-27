@@ -46,7 +46,7 @@ wandb_run_name = 'gpt2' # 'run' + str(time.time())
 # data
 dataset = 'shakespeare_char'
 gradient_accumulation_steps = 5 * 8 # used to simulate larger batch sizes
-batch_size = 12 # if gradient_accumulation_steps > 1, this is the micro-batch size
+batch_size = 16 # if gradient_accumulation_steps > 1, this is the micro-batch size
 block_size = 1024
 # model
 n_layer = 2
@@ -331,7 +331,11 @@ while True:
     
     if iter_num % new_layer_iters == 0 and iter_num != 0 and layers_added <= n_new_layer:
         if ddp:
-            raise(Exception("ddp is not supported yet"))
+            model = model.module
+            new_block = model.add_layer(device)
+            model = DDP(model, device_ids=[ddp_local_rank])
+            new_parameters = [param for param in new_block.parameters()]
+            optimizer.param_groups[0]['params'].extend(new_parameters)
         else:
             new_block = model.add_layer(device)
             new_parameters = [param for param in new_block.parameters()]
