@@ -81,9 +81,12 @@ config = {k: globals()[k] for k in config_keys} # will be useful for logging
 # -----------------------------------------------------------------------------
 
 # various inits, derived attributes, I/O setup
-ddp = int(os.environ.get('RANK', -1)) != -1 # is this a ddp run?
-if ddp:
-    print("ddp is True")
+if device == 'cuda':
+    ddp = len([torch.cuda.device(i) for i in range(torch.cuda.device_count())]) > 1
+else:
+    ddp = False
+    
+print(f"DDP:" {ddp})
     
 if ddp:
     init_process_group(backend=backend)
