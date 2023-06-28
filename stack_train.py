@@ -39,6 +39,7 @@ eval_iters = 100
 eval_only = False # if True, script exits right after the first eval
 always_save_checkpoint = True # if True, always save a checkpoint after each eval
 init_from = 'scratch' # 'scratch' or 'resume' or 'gpt2*'
+exit_on_nan = True
 # wandb logging
 wandb_log = False # disabled by default
 wandb_project = 'shakespeare_char'
@@ -270,6 +271,9 @@ while True:
     if iter_num % eval_interval == 0 and master_process:
         losses = estimate_loss()
         print(f"step {iter_num}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+        if losses['train'] != losses['train']:
+            print("nan loss found! exiting, good luck with fixing it")
+            break
         if wandb_log:
             wandb.log({
                 "iter": iter_num,
