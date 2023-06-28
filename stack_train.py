@@ -50,6 +50,7 @@ gradient_accumulation_steps = 5 * 8 # used to simulate larger batch sizes
 batch_size = 16 # if gradient_accumulation_steps > 1, this is the micro-batch size
 block_size = 1024
 # model
+stack = 'all'
 n_layer = 2
 n_new_layer = 4
 n_head = 6
@@ -272,7 +273,7 @@ while True:
         losses = estimate_loss()
         print(f"step {iter_num}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
         if losses['train'] != losses['train']:
-            print("nan loss found! exiting, good luck with fixing it")
+            print("nan loss found! exiting , good luck with fixing it")
             break
         if wandb_log:
             wandb.log({
@@ -342,7 +343,7 @@ while True:
     if iter_num % new_layer_iters == 0 and iter_num != 0 and layers_added <= n_new_layer:
         if ddp:
             model = model.module
-            new_block = model.add_layer(device)
+            new_block = model.add_layer(device, stack)
             model = DDP(model, device_ids=[ddp_local_rank])
             new_parameters = [param for param in new_block.parameters()]
             optimizer.param_groups[0]['params'].extend(new_parameters)

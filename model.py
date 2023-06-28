@@ -192,7 +192,7 @@ class GPT(nn.Module):
 
         return logits, loss
         
-    def add_layer(self, device):
+    def add_layer(self, device, stack):
         #insert a new block at the end
         block = Block(self.config).to(device)
         self.transformer.h.append(block)
