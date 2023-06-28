@@ -248,6 +248,15 @@ def get_lr(it):
     coeff = 0.5 * (1.0 + math.cos(math.pi * decay_ratio)) # coeff ranges 0..1
     return min_lr + coeff * (learning_rate - min_lr)
 
+#parameters freezing
+def freeze_layers(model, stack):
+    if stack == "last_one":
+        model.freeze_layer("all")
+        model.unfreeze_layer(len(model.transformer.h)-1) #remain unfrozen only the last (probably new) layer
+    elif stack == "last_two":
+        model.freeze_layer("all")
+        model.unfreeze_layer((len(model.transformer.h)-1, len(model.transformer.h)-2))
+
 # logging
 if wandb_log and master_process:
     import wandb
@@ -344,11 +353,15 @@ while True:
         if ddp:
             model = model.module
             new_block = model.add_layer(device, stack)
+            freeze_layers(model, stack)
             model = DDP(model, device_ids=[ddp_local_rank])
+            
             new_parameters = [param for param in new_block.parameters()]
             optimizer.param_groups[0]['params'].extend(new_parameters)
         else:
             new_block = model.add_layer(device)
+            freeze_layers(model, stack)
+            
             new_parameters = [param for param in new_block.parameters()]
             optimizer.param_groups[0]['params'].extend(new_parameters)
         

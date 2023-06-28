@@ -143,7 +143,9 @@ class GPT(nn.Module):
         for pn, p in self.named_parameters():
             if pn.endswith('c_proj.weight'):
                 torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
-
+        
+        self.frozen_layers = []
+        
         # report number of parameters
         print("number of parameters: %.2fM" % (self.get_num_params()/1e6,))
 
@@ -191,11 +193,51 @@ class GPT(nn.Module):
             loss = None
 
         return logits, loss
+    
+    def freeze_layer(self, idx):
+        if idx != 'all':
+            if isinstance(idx, int):
+                if idx not in self.frozen_layers:
+                    for param in self.transformer.h[idx].parameters():
+                        param.requires_grad = False
+                    self.frozen_layers.append(idx)
+            else:
+                for p_idx in idx:
+                    if p_idx in self.frozen_layers:
+                        for param in self.transformer.h[p_idx].parameters():
+                            param.requires_grad = True
+                        self.frozen_layers.remove(p_idx)
+                        
+        else:
+            for idx, layer in enumerate(self.transformer.h):
+                    for param in layer.parameters():
+                        param.requires_grad = False
+                self.frozen_layers.append(idx)
         
+    def unfreeze_layer(self, idx):
+        if idx != 'all':
+            if isinstance(idx, int):
+                if idx in self.frozen_layers:
+                    for param in self.transformer.h[idx].parameters():
+                        param.requires_grad = True
+                    self.frozen_layers.remove(idx)
+            else:
+                for p_idx in idx:
+                    if p_idx in self.frozen_layers:
+                        for param in self.transformer.h[p_idx].parameters():
+                            param.requires_grad = True
+                        self.frozen_layers.remove(p_idx)
+            
+        else:
+            for idx in self.frozen_layers:
+                for param in self.transformer.h[idx].parameters():
+                    param.requires_grad = True
+                self.frozen_layers.remove(idx)
+            
     def add_layer(self, device, stack):
         #insert a new block at the end
         block = Block(self.config).to(device)
-        self.transformer.h.append(block)
+        self.transformer.h.append(block)  
         return block #return block to append it's parameters to optimizer.param_groups
 
     def crop_block_size(self, block_size):
