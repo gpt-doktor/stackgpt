@@ -50,7 +50,7 @@ gradient_accumulation_steps = 5 * 8 # used to simulate larger batch sizes
 batch_size = 16 # if gradient_accumulation_steps > 1, this is the micro-batch size
 block_size = 1024
 # model
-stack = 'all'
+stack_mode = 'all'
 n_layer = 2
 n_new_layer = 4
 n_head = 6
@@ -249,11 +249,11 @@ def get_lr(it):
     return min_lr + coeff * (learning_rate - min_lr)
 
 #parameters freezing
-def freeze_layers(model, stack):
-    if stack == "last_one":
+def freeze_layers(model, stack_mode:
+    if stack_mode == "last_one":
         model.freeze_layer("all")
         model.unfreeze_layer(len(model.transformer.h)-1) #remain unfrozen only the last (probably new) layer
-    elif stack == "last_two":
+    elif stack_mode == "last_two":
         model.freeze_layer("all")
         model.unfreeze_layer((len(model.transformer.h)-1, len(model.transformer.h)-2))
 
@@ -352,15 +352,15 @@ while True:
     if iter_num % new_layer_iters == 0 and iter_num != 0 and layers_added <= n_new_layer:
         if ddp:
             model = model.module
-            new_block = model.add_layer(device, stack)
-            freeze_layers(model, stack)
+            new_block = model.add_layer(device)
+            freeze_layers(model, stack_mode)
             model = DDP(model, device_ids=[ddp_local_rank])
             
             new_parameters = [param for param in new_block.parameters()]
             optimizer.param_groups[0]['params'].extend(new_parameters)
         else:
             new_block = model.add_layer(device)
-            freeze_layers(model, stack)
+            freeze_layers(model, stack_mode)
             
             new_parameters = [param for param in new_block.parameters()]
             optimizer.param_groups[0]['params'].extend(new_parameters)

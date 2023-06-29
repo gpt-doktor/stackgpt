@@ -234,7 +234,7 @@ class GPT(nn.Module):
                     param.requires_grad = True
                 self.frozen_layers.remove(idx)
             
-    def add_layer(self, device, stack):
+    def add_layer(self, device):
         #insert a new block at the end
         block = Block(self.config).to(device)
         self.transformer.h.append(block)  
