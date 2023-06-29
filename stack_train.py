@@ -249,7 +249,7 @@ def get_lr(it):
     return min_lr + coeff * (learning_rate - min_lr)
 
 #parameters freezing
-def freeze_layers(model, stack_mode:
+def freeze_layers(model, stack_mode):
     if stack_mode == "last_one":
         model.freeze_layer("all")
         model.unfreeze_layer(len(model.transformer.h)-1) #remain unfrozen only the last (probably new) layer
@@ -349,7 +349,8 @@ while True:
     iter_num += 1
     local_iter_num += 1
     
-    if iter_num % new_layer_iters == 0 and iter_num != 0 and layers_added <= n_new_layer:
+    if iter_num % new_layer_iters == 0 and iter_num != 0 and layers_added < n_new_layer:
+        layers_added += 1
         if ddp:
             model = model.module
             new_block = model.add_layer(device)

@@ -212,7 +212,7 @@ class GPT(nn.Module):
             for idx, layer in enumerate(self.transformer.h):
                     for param in layer.parameters():
                         param.requires_grad = False
-                self.frozen_layers.append(idx)
+                    self.frozen_layers.append(idx)
         
     def unfreeze_layer(self, idx):
         if idx != 'all':
