@@ -256,6 +256,9 @@ def freeze_layers(model, stack_mode):
     elif stack_mode == "last_two":
         model.freeze_layer("all")
         model.unfreeze_layer((len(model.transformer.h)-1, len(model.transformer.h)-2))
+    elif stack_mode == "last_half":
+        model.unfreeze_layer("all")
+        model.freeze_layer(range(int(len(model.transformer.h)/2)))
 
 # logging
 if wandb_log and master_process:
