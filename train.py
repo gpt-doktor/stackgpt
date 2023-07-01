@@ -340,16 +340,6 @@ while True:
     iter_num += 1
     local_iter_num += 1
     
-    if iter_num % new_layer_iters == 0 and iter_num != 0 and layers_added <= n_new_layer:
-        if ddp:
-            raise(Exception("ddp is not supported yet"))
-        else:
-            new_block = model.add_layer(device)
-            new_paramaters = [param for param in new_block.parameters()]
-            optimizer.param_groups[0]['params'].extend(new_parameters)
-        
-        
-    
     # termination conditions
     if iter_num > max_iters:
         break
