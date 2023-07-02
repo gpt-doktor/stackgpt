@@ -52,7 +52,6 @@ block_size = 1024
 # model
 stack_mode = 'all'
 n_layer = 2
-n_new_layer = 4
 n_head = 6
 n_embd = 384
 dropout = 0.2 # for pretraining 0 is good, for finetuning try 0.1+
@@ -60,7 +59,6 @@ bias = False # do we use bias inside LayerNorm and Linear layers?
 # adamw optimizer
 learning_rate = 6e-4 # max learning rate
 max_iters =  12000 # total number of training iterations
-new_layer_iters = 2000
 weight_decay = 1e-1
 beta1 = 0.9
 beta2 = 0.95
@@ -198,8 +196,8 @@ scaler = torch.cuda.amp.GradScaler(enabled=(dtype == 'float16'))
 
 # optimizer
 optimizer = model.configure_optimizers(weight_decay, learning_rate, (beta1, beta2), device_type)
-if init_from == 'resume':
-    optimizer.load_state_dict(checkpoint['optimizer'])
+#if init_from == 'resume':
+#    optimizer.load_state_dict(checkpoint['optimizer'])
 checkpoint = None # free up memory
 
 # compile the model
