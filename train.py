@@ -70,6 +70,7 @@ lr_decay_iters = 10000 # should be ~= max_iters per Chinchilla
 min_lr = 6e-5 # minimum learning rate, should be ~= learning_rate/10 per Chinchilla
 # DDP settings
 backend = 'nccl' # 'nccl', 'gloo', etc.
+frozen_mode = 'none'
 # system
 device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1' etc., or try 'mps' on macbooks
 dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16' # 'float32', 'bfloat16', or 'float16', the latter will auto implement a GradScaler
@@ -166,7 +167,18 @@ elif init_from == 'resume':
         model_args[k] = checkpoint_model_args[k]
     # create the model
     gptconf = GPTConfig(**model_args)
+    
     model = GPT(gptconf)
+    if frozen_mode == "last_one":
+        model.freeze_layer("all")
+        model.unfreeze_layer(len(model.transformer.h)-1) #remain unfrozen only the last (probably new) layer
+    elif frozen_mode == "last_two":
+        model.freeze_layer("all")
+        model.unfreeze_layer((len(model.transformer.h)-1, len(model.transformer.h)-2))
+    elif frozen_mode == "last_half":
+        model.unfreeze_layer("all")
+        model.freeze_layer(range(int(len(model.transformer.h)/2)))
+        
     state_dict = checkpoint['model']
     # fix the keys of the state dictionary :(
     # honestly no idea how checkpoints sometimes get this prefix, have to debug more
