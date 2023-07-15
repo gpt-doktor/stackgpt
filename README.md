@@ -8,8 +8,9 @@ Stackgpt is a (probably failed) research project in progress. The main idea is n
 FLOPs were counted using the [fvcore](https://github.com/facebookresearch/fvcore) library.
 
 ### Training
-All models were trained on the 2 billions tokens subset from the openwebtext dataset. The batch size during all experiments was 512 (physical batch size 16 * gradient accumulation steps 32)
+All models were trained on the 2 billions tokens subset from the openwebtext dataset. The batch size during all experiments was 512 (physical batch size 16 * gradient accumulation steps 32).
+
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTkwNzA3MTQ5MF19
+eyJoaXN0b3J5IjpbMTk2NDI5OTM0LDE5MDcwNzE0OTBdfQ==
 -->
