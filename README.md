@@ -8,7 +8,7 @@
 <h3 id="implementation">Implementation</h3>
 <p><a href="https://github.com/karpathy/nanoGPT">nanoGPT</a> was used as the base of the stackgpt because of it’s simplicity.<br>
 FLOPs were counted using the <a href="https://github.com/facebookresearch/fvcore">fvcore</a> library.<br>
-Also in all calculations it was assumed that 2*FLOPs(backpropagation) = FLOPs(forwardpass)</p>
+Also in all calculations it was assumed that 2*FLOPs(backwardpass) = FLOPs(forwardpass)</p>
 <h3 id="training">Training</h3>
 <p>All models were trained on the 2 billions tokens subset from the openwebtext dataset. The batch size during all experiments was 512 (physical batch size 16 * gradient accumulation steps 32).<br>
 Baseline is a GPT model trained in a normal traditional way with the next characteristics: 4 layers, block size 512, embedding dimension 384, dropout 0.<br>
